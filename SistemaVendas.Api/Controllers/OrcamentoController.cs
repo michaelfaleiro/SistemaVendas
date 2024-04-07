@@ -58,15 +58,19 @@ public class OrcamentoController : ControllerBase
     
     [HttpPost]
     [Route("adicionar-item")]
-    public async Task<IActionResult> AdicionarItem([FromBody] AdicionarItemOrcamentoViewModel model)
+    public async Task<IActionResult> AdicionarItemNoOrcamento([FromBody] AdicionarItemOrcamentoViewModel model)
     {
         if(!ModelState.IsValid)
             return BadRequest(new ResultViewModel<AdicionarItemOrcamentoViewModel>(ModelState.GetErrors()));
         
         try
         {
-            await _orcamentoService.AdicionarItem(model);
+            await _orcamentoService.AdicionarItemNoOrcamento(model);
             return NoContent();
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<AdicionarItemOrcamentoViewModel>(e.Message));
         }
         catch (DbUpdateException)
         {
@@ -77,6 +81,56 @@ public class OrcamentoController : ControllerBase
             return BadRequest(new ResultViewModel<AdicionarItemOrcamentoViewModel>("Falha Interna no Servidor"));
         }
     }
+
+    [HttpPut("atualizar-item")]
+    public async Task<IActionResult> AtualizarItemNoOrcamento(AdicionarItemOrcamentoViewModel model)
+    {
+        if(!ModelState.IsValid)
+            return BadRequest(new ResultViewModel<AdicionarItemOrcamentoViewModel>(ModelState.GetErrors()));
+        try
+        {
+            await _orcamentoService.AtualizarItemNoOrcamento(model);
+            return NoContent();
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<AdicionarItemOrcamentoViewModel>(e.Message));
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<AdicionarItemOrcamentoViewModel>("Erro ao atualizar dados"));
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResultViewModel<AdicionarItemOrcamentoViewModel>("Falha Interna no Servidor"));
+        }
+    }
+    
+    [HttpDelete("remover-item")]
+    public async Task<IActionResult> RemoverItemDoOrcamento([FromBody] RemoverItemOrcamentoViewModel model)
+    {
+        if(!ModelState.IsValid)
+            return BadRequest(new ResultViewModel<RemoverItemOrcamentoViewModel>(ModelState.GetErrors()));
+        
+        try
+        {
+            await _orcamentoService.RemoverItemNoOrcamento(model);
+            return NoContent();
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<RemoverItemOrcamentoViewModel>(e.Message));
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<RemoverItemOrcamentoViewModel>("Erro ao deletar dados"));
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResultViewModel<RemoverItemOrcamentoViewModel>("Falha Interna no Servidor"));
+        }
+    }
+    
     
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -96,7 +150,7 @@ public class OrcamentoController : ControllerBase
         }
     }
     
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetOrcamentoComProdutoById(int id)
     {
 
@@ -109,39 +163,62 @@ public class OrcamentoController : ControllerBase
             
             return Ok(new ResultViewModel<OrcamentoProdutoViewModel>(orcamento));
         }
-        catch (Exception e)
+        catch (DbUpdateException)
         {
-            Console.WriteLine(e);
-            throw;
+            return StatusCode(500, new ResultViewModel<Orcamento>("Erro ao buscar dados"));
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResultViewModel<Orcamento>("Falha Interna no Servidor"));
         }
         
     }
      
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, Orcamento orcamento)
     {
-        if (id != orcamento.Id)
+        if (!ModelState.IsValid)
+            return BadRequest(new ResultViewModel<Orcamento>(ModelState.GetErrors()));
+
+        try
         {
-            return BadRequest();
+            var updatedOrcamento = await _orcamentoService.Update(id, orcamento);
+            return Ok(new ResultViewModel<Orcamento>(updatedOrcamento));
         }
-        
-        var updatedOrcamento = await _orcamentoService.Update(orcamento);
-        return Ok(updatedOrcamento);
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<Orcamento>(e.Message));
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<Orcamento>("Erro ao atualizar dados"));
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResultViewModel<Orcamento>("Falha Interna no Servidor"));
+        }
     }
     
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var orcamento = await _orcamentoService.Get(id);
-        
-        if (orcamento == null)
+        try
         {
-            return NotFound();
-        }
+            var orcamento = await _orcamentoService.Get(id);
+        
+            if (orcamento == null)
+                return NotFound(new ResultViewModel<Orcamento>("Orçamento não encontrado"));
         
         await _orcamentoService.Delete(orcamento);
         return NoContent();
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<Orcamento>("Erro ao deletar dados"));
+        }
+        catch (Exception)
+        {
+            return BadRequest(new ResultViewModel<Orcamento>("Falha Interna no Servidor"));
+        }
     }
-    
-    
 }

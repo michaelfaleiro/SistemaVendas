@@ -24,6 +24,7 @@ public class OrcamentoProdutoViewModel
 public class ItensOrcamentoViewModel
 {
     public int Id { get; set; }
+    public int IdProduto { get; set; }
     public string NomeProduto { get; set; }
     public string Sku { get; set; }
     public string Marca { get; set; }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SistemaVendas.Api.Data;
 using SistemaVendas.Api.Dto;
 using SistemaVendas.Api.Models;
+using SistemaVendas.Api.ViewsModels;
 using SistemaVendas.Api.ViewsObjects;
 
 namespace SistemaVendas.Api.Services;
@@ -17,15 +18,16 @@ public class OrcamentoService(ApiDbContext context)
         return orcamento;
     }
 
-    public async Task AdicionarItem(AdicionarItemOrcamentoViewModel itemOrcamento )
+    public async Task AdicionarItemNoOrcamento(AdicionarItemOrcamentoViewModel itemOrcamento )
     {
         var orcamento = await context.Orcamentos.FirstOrDefaultAsync(x => x.Id == itemOrcamento.OrcamentoId);
         var produto = await context.Produtos.FirstOrDefaultAsync(x => x.Id == itemOrcamento.ProdutoId);
         
-        if (orcamento == null || produto == null)
-        {
-            throw new Exception("Orcamento ou Produto não encontrado");
-        }
+        if(orcamento  == null)
+            throw new InvalidOperationException("Orçamento não encontrado");
+        
+        if (produto == null)
+            throw new InvalidOperationException("Produto não encontrado");
         
         var item = new ItemOrcamento();
         item.AdicionarOrcamento(orcamento);
@@ -35,8 +37,41 @@ public class OrcamentoService(ApiDbContext context)
         await context.SaveChangesAsync();
         
     }
-    public async Task<Orcamento> Update(Orcamento orcamento)
+    
+    public async Task AtualizarItemNoOrcamento(AdicionarItemOrcamentoViewModel itemOrcamento)
     {
+        var item = await context.ItemOrcamentos
+            .FirstOrDefaultAsync(
+                i => i.ProdutoId == itemOrcamento.ProdutoId 
+                && i.OrcamentoId == itemOrcamento.OrcamentoId);
+        if(item == null)
+            throw new InvalidOperationException("Item não encontrado");
+        
+        item.AtualizarProduto(itemOrcamento.Quantidade, itemOrcamento.PrecoVenda);
+        context.ItemOrcamentos.Update(item);
+        await context.SaveChangesAsync();
+    }
+    
+    public async Task RemoverItemNoOrcamento(RemoverItemOrcamentoViewModel itemOrcamento)
+    {
+        var orcamento = await context.Orcamentos.FirstOrDefaultAsync(x => x.Id == itemOrcamento.OrcamentoId);
+        if (orcamento == null)
+            throw new InvalidOperationException("Orçamento não encontrado");
+        
+        var item = await context.ItemOrcamentos.FirstOrDefaultAsync(x => x.Id == itemOrcamento.ItemOrcamentoId);
+        if (item == null)
+            throw new InvalidOperationException("Item não encontrado");
+        
+        context.ItemOrcamentos.Remove(item);
+        await context.SaveChangesAsync();
+    }
+    
+    public async Task<Orcamento> Update(int id, Orcamento orcamento)
+    {
+        var orcamentoExistente = await context.Orcamentos.FirstOrDefaultAsync(x => x.Id == id);
+        if (orcamentoExistente == null)
+            throw new InvalidOperationException("Orçamento não encontrado");
+        
         context.Orcamentos.Update(orcamento);
         await context.SaveChangesAsync();
 
@@ -49,7 +84,7 @@ public class OrcamentoService(ApiDbContext context)
         await context.SaveChangesAsync();
     }
     
-    public async Task<Orcamento> Get(int id)
+    public async Task<Orcamento?> Get(int id)
     {
         return await context.Orcamentos
             .Include(x=>x.Cliente)
@@ -86,7 +121,8 @@ public class OrcamentoService(ApiDbContext context)
         UpdatedAt = orcamento.UpdatedAt,
         Itens = orcamento.Itens.Select(i => new ItensOrcamentoViewModel
         {
-            Id = i.Produto.Id,
+            Id = i.Id,
+            IdProduto = i.Produto.Id,
             NomeProduto = i.Produto.Nome,
             Sku = i.Produto.Sku,
             Marca = i.Produto.Marca,

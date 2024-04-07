@@ -68,6 +68,10 @@ public class ClienteController : ControllerBase
         try
         {
             var cliente = await _clienteService.GetById(id);
+            
+            if (cliente == null)
+                return NotFound(new ResultViewModel<Cliente>("Cliente não encontrado"));
+            
             return Ok(new ResultViewModel<Cliente>(cliente));
         }
         catch (DbUpdateException)

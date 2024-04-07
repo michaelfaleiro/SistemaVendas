@@ -21,6 +21,12 @@ public class ItemOrcamento : Entity
         PrecoVenda = precoVenda;
     }
     
+    public void AtualizarProduto(int quantidade, double precoVenda)
+    {
+        Quantidade = quantidade;
+        PrecoVenda = precoVenda;
+        UpdatedAt = DateTime.UtcNow;
+    }
     
     public int OrcamentoId { get; private set; }
     public Orcamento Orcamento { get; private set; }

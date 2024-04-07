@@ -26,6 +26,8 @@ builder.Services.AddDbContext<ApiDbContext>(
 builder.Services.AddScoped<ClienteService>();
 builder.Services.AddScoped<OrcamentoService>();
 builder.Services.AddScoped<ProdutoService>();
+builder.Services.AddScoped<CotacaoService>();
+builder.Services.AddScoped<FornecedorService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
