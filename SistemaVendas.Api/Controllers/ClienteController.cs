@@ -40,7 +40,7 @@ public class ClienteController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest(new ResultViewModel<Cliente>("Falha Interna no Servidor"));
+            return StatusCode(500,new ResultViewModel<Cliente>("Falha Interna no Servidor"));
         }
     }
 
@@ -58,7 +58,7 @@ public class ClienteController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest(new ResultViewModel<Cliente>("Falha Interna no Servidor"));
+            return StatusCode(500,new ResultViewModel<Cliente>("Falha Interna no Servidor"));
         }
     }
 
@@ -69,10 +69,11 @@ public class ClienteController : ControllerBase
         {
             var cliente = await _clienteService.GetById(id);
             
-            if (cliente == null)
-                return NotFound(new ResultViewModel<Cliente>("Cliente não encontrado"));
-            
             return Ok(new ResultViewModel<Cliente>(cliente));
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<Cliente>(e.Message));
         }
         catch (DbUpdateException)
         {
@@ -80,7 +81,7 @@ public class ClienteController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest(new ResultViewModel<Cliente>("Falha Interna no Servidor"));
+            return StatusCode(500,new ResultViewModel<Cliente>("Falha Interna no Servidor"));
         }
     }
     
@@ -89,16 +90,16 @@ public class ClienteController : ControllerBase
     {
         if (!ModelState.IsValid)
             return BadRequest(new ResultViewModel<Cliente>(ModelState.GetErrors()));
+        
+        var cliente = _mapper.Map<Cliente>(dto);
         try
         {
-            var cliente = await _clienteService.GetById(id);
-            if (cliente == null)
-                return NotFound(new ResultViewModel<Cliente>("Cliente não encontrado"));
-            
-            cliente = _mapper.Map(dto, cliente);
-            
-            var updatedCliente = await _clienteService.Update(cliente);
+            var updatedCliente = await _clienteService.Update(id, cliente);
             return Ok(new ResultViewModel<Cliente>(updatedCliente));
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<Cliente>(e.Message));
         }
         catch (DbUpdateException)
         {
@@ -106,7 +107,7 @@ public class ClienteController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest(new ResultViewModel<Cliente>("Falha Interna no Servidor"));
+            return StatusCode(500,new ResultViewModel<Cliente>("Falha Interna no Servidor"));
         }
     }
     
@@ -115,15 +116,12 @@ public class ClienteController : ControllerBase
     {
         try
         {
-            var cliente = await _clienteService.GetById(id);
-        
-            if (cliente == null)
-            {
-                return NotFound(new ResultViewModel<Cliente>("Cliente não encontrado"));
-            }
-        
-            await _clienteService.Delete(cliente);
+            await _clienteService.Delete(id);
             return NoContent();
+        }
+        catch (InvalidOperationException e)
+        {
+            return BadRequest(new ResultViewModel<Cliente>(e.Message));
         }
         catch (DbUpdateException)
         {
@@ -131,7 +129,7 @@ public class ClienteController : ControllerBase
         }
         catch (Exception)
         {
-            return BadRequest(new ResultViewModel<Cliente>("Falha Interna no Servidor"));
+            return StatusCode(500,new ResultViewModel<Cliente>("Falha Interna no Servidor"));
         }
     }
 }

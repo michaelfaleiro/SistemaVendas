@@ -1,15 +1,7 @@
-using SistemaVendas.Api.Models;
+namespace SistemaVendas.Api.ViewsModels.OrcamentoViewsModels;
 
-namespace SistemaVendas.Api.ViewsObjects;
 
-public class ClienteViewModel
-{
-    public int Id { get; set; }
-    public string Nome { get; set; }
-    public string Telefone { get; set; }
-}
-
-public class OrcamentoProdutoViewModel
+public class ListarOrcamentoProdutoViewModel
 {
     public int Id { get; set; }
     public ClienteViewModel Cliente { get; set; }
@@ -30,4 +22,11 @@ public class ItensOrcamentoViewModel
     public string Marca { get; set; }
     public double PrecoVenda { get; set; }
     public int Quantidade { get; set; }
+}
+
+public class ClienteViewModel
+{
+    public int Id { get; set; }
+    public string Nome { get; set; }
+    public string Telefone { get; set; }
 }

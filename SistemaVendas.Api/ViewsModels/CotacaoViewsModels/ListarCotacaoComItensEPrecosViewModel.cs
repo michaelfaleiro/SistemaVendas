@@ -1,8 +1,8 @@
 using SistemaVendas.Api.ValueObjetcs;
 
-namespace SistemaVendas.Api.ViewsModels;
+namespace SistemaVendas.Api.ViewsModels.CotacaoViewsModels;
 
-public class CotacaoComItensEPrecosViewModel
+public class ListarCotacaoComItensEPrecosViewModel
 {
     public int Id { get; set; }
     public DateTime CreatedAt { get; set; }

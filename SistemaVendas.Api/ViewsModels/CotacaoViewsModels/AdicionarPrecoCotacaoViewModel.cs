@@ -1,4 +1,4 @@
-namespace SistemaVendas.Api.ViewsModels;
+namespace SistemaVendas.Api.ViewsModels.CotacaoViewsModels;
 
 public class AdicionarPrecoCotacaoViewModel
 {

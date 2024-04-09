@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SistemaVendas.Api.ViewsModels;
+namespace SistemaVendas.Api.ViewsModels.OrcamentoViewsModels;
 
 public class RemoverItemOrcamentoViewModel
 {

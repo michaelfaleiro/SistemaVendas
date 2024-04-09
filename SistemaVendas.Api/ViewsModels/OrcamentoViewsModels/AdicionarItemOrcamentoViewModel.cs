@@ -1,4 +1,4 @@
-namespace SistemaVendas.Api.ViewsObjects;
+namespace SistemaVendas.Api.ViewsModels.OrcamentoViewsModels;
 
 public class AdicionarItemOrcamentoViewModel
 {

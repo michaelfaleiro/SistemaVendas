@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaVendas.Api.Data;
 using SistemaVendas.Api.Models;
-using SistemaVendas.Api.ViewsModels;
-using SistemaVendas.Api.ViewsObjects;
+using SistemaVendas.Api.ViewsModels.CotacaoViewsModels;
 
 
 namespace SistemaVendas.Api.Services;
@@ -30,7 +29,6 @@ public class CotacaoService(ApiDbContext context)
         item.AdicionarCotacao(cotacao);
         
         await context.ItemCotacoes.AddAsync(item);
-        
         await context.SaveChangesAsync();
     }
     
@@ -82,11 +80,11 @@ public class CotacaoService(ApiDbContext context)
         await context.SaveChangesAsync();
     }
 
-    public async Task<CotacaoItemComPrecosViewModel> GetProdutoPrecosById(int idCotacao)
+    public async Task<ListarItemComPrecosViewModel> GetItemComPrecosById(int idCotacao)
     {
         var cotacaoItens = await context.ItemCotacoes
             .Include(i => i.Precos)
-            .Select(i => new CotacaoItemComPrecosViewModel
+            .Select(i => new ListarItemComPrecosViewModel
             {
                 Id = i.Id,
                 Sku = i.Sku,
@@ -103,16 +101,19 @@ public class CotacaoService(ApiDbContext context)
             })
             .FirstOrDefaultAsync(x=> x.Id == idCotacao);
 
+        if (cotacaoItens == null)
+            throw new InvalidOperationException("Cotaçao não encontrada");
+        
         return cotacaoItens;
     }
     
-    public async Task<CotacaoComItensEPrecosViewModel> GetCotacaoComItensEPrecosById(int idCotacao)
+    public async Task<ListarCotacaoComItensEPrecosViewModel> GetCotacaoComItensEPrecosById(int idCotacao)
     {
         var cotacao = await context.Cotacoes
             .AsNoTracking()
             .Include(c => c.ItemCotacaos)
                 .ThenInclude(i => i.Precos)
-            .Select(c => new CotacaoComItensEPrecosViewModel
+            .Select(c => new ListarCotacaoComItensEPrecosViewModel
             {
                 Id = c.Id,
                 CreatedAt = c.CreatedAt,
@@ -137,6 +138,9 @@ public class CotacaoService(ApiDbContext context)
             })
             .FirstOrDefaultAsync(c => c.Id == idCotacao);
 
+        if (cotacao == null)
+            throw new InvalidOperationException("Cotação não encontrada");    
+        
         return cotacao;
     }
 }

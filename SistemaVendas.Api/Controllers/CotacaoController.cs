@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaVendas.Api.Dto;
@@ -5,7 +6,7 @@ using SistemaVendas.Api.Extensions;
 using SistemaVendas.Api.Models;
 using SistemaVendas.Api.Services;
 using SistemaVendas.Api.ViewsModels;
-using SistemaVendas.Api.ViewsObjects;
+using SistemaVendas.Api.ViewsModels.CotacaoViewsModels;
 
 namespace SistemaVendas.Api.Controllers;
 
@@ -14,10 +15,12 @@ namespace SistemaVendas.Api.Controllers;
 public class CotacaoController:ControllerBase
 {
     private readonly CotacaoService _cotacaoService;
+    private readonly IMapper _mapper;
     
-    public CotacaoController(CotacaoService cotacaoService)
+    public CotacaoController(CotacaoService cotacaoService, IMapper mapper)
     {
         _cotacaoService = cotacaoService;
+        _mapper = mapper;
     }
     
     [HttpPost]
@@ -31,7 +34,7 @@ public class CotacaoController:ControllerBase
             var cotacao = new Cotacao();
             
             cotacao.AdicionarVeiculo(
-                cotacaoDto.Nome,
+                cotacaoDto.Carro,
                 cotacaoDto.Placa,
                 cotacaoDto.Chassi,
                 cotacaoDto.Motor,
@@ -45,9 +48,9 @@ public class CotacaoController:ControllerBase
         {
             return StatusCode(500, new ResultViewModel<Cotacao>("Erro ao salvar dados"));
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            return BadRequest(new ResultViewModel<Cotacao>("Falha Interna no Servidor" + e.Message));
+            return StatusCode(500,new ResultViewModel<Cotacao>("Falha Interna no Servidor"));
         }
     }
 
@@ -71,6 +74,10 @@ public class CotacaoController:ControllerBase
         {
             return StatusCode(500, new ResultViewModel<Cotacao>("Erro ao salvar dados"));
         }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<Cotacao>("Falha Interna no Servidor"));
+        }
     }
     
     [HttpPost("adicionar-preco")]
@@ -92,16 +99,34 @@ public class CotacaoController:ControllerBase
         {
             return StatusCode(500, new ResultViewModel<Cotacao>("Erro ao salvar dados"));
         }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<Cotacao>("Falha Interna no Servidor"));
+        }
     }
     
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetCotacaoComPrecos(int id)
     {
-        var cotacao = await _cotacaoService.GetCotacaoComItensEPrecosById(id);
-        if(cotacao == null)
-            return NotFound(new ResultViewModel<Cotacao>("Cotação não encontrada"));
+        try
+        {
+            var cotacao = await _cotacaoService.GetCotacaoComItensEPrecosById(id);
+            
+            return Ok(new ResultViewModel<ListarCotacaoComItensEPrecosViewModel>(cotacao));
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<Cotacao>(e.Message));
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<Cotacao>("Erro ao buscar dados"));
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<Cotacao>("Falha Interna no Servidor"));
+        }
         
-        return Ok(new ResultViewModel<CotacaoComItensEPrecosViewModel>(cotacao));
     }
     
 }

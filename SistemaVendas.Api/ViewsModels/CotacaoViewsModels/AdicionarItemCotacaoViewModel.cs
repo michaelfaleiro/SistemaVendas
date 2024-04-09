@@ -1,6 +1,4 @@
-using SistemaVendas.Api.Models;
-
-namespace SistemaVendas.Api.ViewsModels;
+namespace SistemaVendas.Api.ViewsModels.CotacaoViewsModels;
 
 public class AdicionarItemCotacaoViewModel
 {

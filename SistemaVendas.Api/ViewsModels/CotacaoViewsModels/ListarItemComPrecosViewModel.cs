@@ -1,6 +1,6 @@
-namespace SistemaVendas.Api.ViewsModels;
+namespace SistemaVendas.Api.ViewsModels.CotacaoViewsModels;
 
-public class CotacaoItemComPrecosViewModel
+public class ListarItemComPrecosViewModel
 {
     public int Id { get; set; }
     public string Sku { get; set; }

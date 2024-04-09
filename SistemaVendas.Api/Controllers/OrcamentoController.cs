@@ -6,7 +6,7 @@ using SistemaVendas.Api.Extensions;
 using SistemaVendas.Api.Models;
 using SistemaVendas.Api.Services;
 using SistemaVendas.Api.ViewsModels;
-using SistemaVendas.Api.ViewsObjects;
+using SistemaVendas.Api.ViewsModels.OrcamentoViewsModels;
 
 namespace SistemaVendas.Api.Controllers;
 
@@ -153,15 +153,15 @@ public class OrcamentoController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetOrcamentoComProdutoById(int id)
     {
-
         try
         {
             var orcamento = await _orcamentoService.GetOrcamentoComProdutoById(id);
         
-            if (orcamento == null)
-                return NotFound(new ResultViewModel<OrcamentoProdutoViewModel>("Orçamento não encontrado"));
-            
-            return Ok(new ResultViewModel<OrcamentoProdutoViewModel>(orcamento));
+            return Ok(new ResultViewModel<ListarOrcamentoProdutoViewModel>(orcamento));
+        }
+        catch (InvalidOperationException e)
+        {
+            return NotFound(new ResultViewModel<ListarOrcamentoProdutoViewModel>(e.Message));
         }
         catch (DbUpdateException)
         {

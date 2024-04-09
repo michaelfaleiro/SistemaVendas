@@ -11,6 +11,12 @@ public class Cliente : Entity
         UpdatedAt = DateTime.UtcNow;
     }
     
+    public void AtualizarCliente(string nome, string telefone)
+    {
+        Nome = nome;
+        Telefone = telefone;
+        UpdatedAt = DateTime.UtcNow;
+    }
     
     public string Nome { get;private set; }
     public string Telefone { get;private set; }

@@ -1,9 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaVendas.Api.Data;
-using SistemaVendas.Api.Dto;
 using SistemaVendas.Api.Models;
-using SistemaVendas.Api.ViewsModels;
-using SistemaVendas.Api.ViewsObjects;
+using SistemaVendas.Api.ViewsModels.OrcamentoViewsModels;
 
 namespace SistemaVendas.Api.Services;
 
@@ -91,7 +89,7 @@ public class OrcamentoService(ApiDbContext context)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
     
-    public async Task<OrcamentoProdutoViewModel> GetOrcamentoComProdutoById(int id)
+    public async Task<ListarOrcamentoProdutoViewModel> GetOrcamentoComProdutoById(int id)
 {
     var orcamento = await context.Orcamentos
         .Include(o => o.Cliente)
@@ -102,10 +100,10 @@ public class OrcamentoService(ApiDbContext context)
 
     if (orcamento == null)
     {
-        return null;
+        throw new InvalidOperationException("Orçamento não encontrado");
     }
 
-    var orcamentoViewObject = new OrcamentoProdutoViewModel
+    var orcamentoViewObject = new ListarOrcamentoProdutoViewModel
     {
         Id = orcamento.Id,
         Cliente = new ClienteViewModel

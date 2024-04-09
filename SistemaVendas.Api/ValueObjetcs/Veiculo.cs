@@ -1,6 +1,6 @@
 namespace SistemaVendas.Api.ValueObjetcs;
 
-public class Veiculo
+public record Veiculo()
 {
     public string Nome { get; set; }
     public string Placa { get; set; }
